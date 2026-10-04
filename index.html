@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Hollowmere</title>
+  <meta name="description" content="Hollowmere All Hallows' Festival · October 31, 2026. One night. Six rites. The veil thins at midnight." />
+  <meta name="theme-color" content="#05060c" />
+  <meta property="og:title" content="Hollowmere — The Night the Veil Thins" />
+  <meta property="og:description" content="One night. Six rites. The veil thins at midnight. October 31, 2026." />
+  <meta property="og:image" content="/og_image.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="/tex/spirit_board.webp" />
+  <link rel="preload" as="image" href="/tex/planchette.webp" />
+  <link rel="preload" as="image" href="/tex/candles.webp" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body class="is-loading">
+  <canvas id="gl" aria-hidden="true"></canvas>
+
+  <!-- ░░ SÉANCE LOADER ░░ -->
+  <div id="loader" role="dialog" aria-label="Loading Hollowmere">
+    <div class="loader-inner">
+      <p class="loader-kicker">The spirits are gathering</p>
+      <div class="board">
+        <canvas class="board-canvas"></canvas>
+        <button class="planchette" type="button" aria-label="Enter Hollowmere">
+          <img src="tex/planchette.webp" alt="" draggable="false" />
+        </button>
+      </div>
+      <p class="loader-spelled" aria-live="polite"><span></span><span></span><span></span><span></span><span></span></p>
+      <p class="loader-hint"><span class="loader-pct">0%</span></p>
+    </div>
+    <div class="loader-candles l"><img src="tex/candles.webp" alt="" /><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="loader-candles r"><img src="tex/candles.webp" alt="" /><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <!-- ░░ HUD ░░ -->
+  <header id="hud">
+    <a class="brand" href="#" data-goto="hero" aria-label="Hollowmere — back to the gates">
+      <img src="tex/crest.webp" alt="" />
+      <span>Hollowmere</span>
+    </a>
+    <div class="spirits" title="Hidden spirits revealed by your lantern">
+      <span class="spirits-label">Spirits found</span>
+      <span class="spirits-dots"><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+    <div class="hud-right">
+      <button class="sound" type="button" aria-label="Toggle sound" aria-pressed="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </button>
+      <button class="btn-ghost" type="button" data-goto="apothecary">Claim <span class="hide-sm">your </span>ticket</button>
+    </div>
+  </header>
+
+  <nav id="rail" aria-label="Chapters"></nav>
+
+  <div class="web web-tl" aria-hidden="true"></div>
+  <div class="web web-tr" aria-hidden="true"></div>
+
+  <!-- ░░ STORY PANELS (fixed, driven by scroll progress) ░░ -->
+  <main id="panels">
+    <section class="panel panel-hero" data-ch="hero">
+      <p class="kicker reveal">All Hallows' Festival · MMXXVI</p>
+      <h1 class="title" aria-label="Hollowmere"></h1>
+      <p class="tagline reveal">One night. Six rites. The veil thins at midnight.</p>
+      <p class="date reveal">October 31 · Gates open at nine</p>
+      <div class="scroll-cue reveal"><span>Scroll to open the gates</span><i></i></div>
+    </section>
+
+    <section class="panel panel-gates" data-ch="gates">
+      <p class="kicker reveal">I · The Threshold</p>
+      <h2 class="reveal">Raise your lantern.</h2>
+      <p class="reveal">Not everything on this road is alive. Sweep your light through the trees. Five spirits hide between here and the grave. Find them all and they may leave you a gift.</p>
+    </section>
+
+    <section class="panel panel-veil" data-ch="veil">
+      <p class="kicker reveal">II · The Veil</p>
+      <h2 class="reveal">The manor has been waiting<br />for you. It left the window open.</h2>
+    </section>
+
+    <section class="panel panel-deck" data-ch="deck">
+      <p class="kicker reveal">III · The Deck of Fates</p>
+      <div class="deck-caption reveal">
+        <span class="deck-num">I</span>
+        <h2 class="deck-title">The Lantern Walk</h2>
+        <p class="deck-time">9:00 PM</p>
+        <p class="deck-text"></p>
+      </div>
+      <div class="deck-pips"></div>
+    </section>
+
+    <section class="panel panel-oracle" data-ch="oracle">
+      <p class="kicker reveal">IV · The Oracle</p>
+      <h2 class="reveal">Touch the orb.<br />It already knows.</h2>
+      <p class="fortune" aria-live="polite"></p>
+    </section>
+
+    <section class="panel panel-clock" data-ch="clock">
+      <p class="kicker reveal">V · The Witching Hour</p>
+      <h2 class="reveal">The clock is already counting.</h2>
+      <div class="countdown reveal" aria-live="off">
+        <div><b data-cd="d">00</b><span>Nights</span></div>
+        <div><b data-cd="h">00</b><span>Hours</span></div>
+        <div><b data-cd="m">00</b><span>Minutes</span></div>
+        <div><b data-cd="s">00</b><span>Heartbeats</span></div>
+      </div>
+      <p class="clock-note reveal">until midnight · October 31</p>
+    </section>
+
+    <section class="panel panel-apothecary" data-ch="apothecary">
+      <p class="kicker reveal">VI · The Apothecary</p>
+      <h2 class="reveal">Choose your draught.</h2>
+      <div class="tier-card reveal">
+        <p class="tier-name">Hover a potion</p>
+        <p class="tier-price"></p>
+        <ul class="tier-perks"></ul>
+        <p class="tier-hint">Click a bottle to pour it into the cauldron.</p>
+      </div>
+    </section>
+
+    <section class="panel panel-invite" data-ch="invitation">
+      <p class="kicker reveal">VII · The Invitation</p>
+      <h2 class="reveal">Break the seal.</h2>
+      <p class="reveal">A letter has been written in your name.</p>
+    </section>
+
+    <section class="panel panel-grave" data-ch="graveyard">
+      <p class="kicker reveal">VIII · Here Lie the Links</p>
+      <footer class="footer reveal">
+        <img src="tex/crest.webp" alt="" />
+        <p>Hollowmere Festival Society · Est. 1693 · Reopened 2026</p>
+        <p class="small">No refunds for lost souls. Please do not feed the crows.</p>
+        <p class="small">Hollowmere is a work of fiction built as a WebGL experience.</p>
+      </footer>
+    </section>
+  </main>
+
+  <!-- ░░ RSVP LETTER ░░ -->
+  <div id="rsvp" aria-hidden="true" role="dialog" aria-label="Reserve your place">
+    <div class="rsvp-paper">
+      <button class="rsvp-close" type="button" aria-label="Close">×</button>
+      <form class="rsvp-form" novalidate>
+        <p class="rsvp-script">Hollowmere requests your presence</p>
+        <h3>Sign the Pact</h3>
+        <label>Your mortal name<input name="name" required autocomplete="name" placeholder="Ichabod Crane" /></label>
+        <label>Where shall the raven fly?<input name="email" type="email" required autocomplete="email" placeholder="you@thelivingworld.com" /></label>
+        <div class="row">
+          <label>Souls attending
+            <select name="souls"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+          </label>
+          <label>Draught
+            <select name="tier"><option value="mortal">Mortal · $66</option><option value="phantom" selected>Phantom · $131</option><option value="undying">Undying · $313</option></select>
+          </label>
+        </div>
+        <label class="check"><input type="checkbox" name="oath" required /> <span>I understand I may not return quite the same.</span></label>
+        <p class="rsvp-gift" hidden></p>
+        <button class="btn-seal" type="submit">Seal the Pact</button>
+        <p class="rsvp-error" aria-live="assertive"></p>
+      </form>
+      <div class="rsvp-done" hidden>
+        <p class="rsvp-script">It is done.</p>
+        <h3></h3>
+        <p>The raven knows where to find you. Arrive before nine, and don't look back at the gate.</p>
+      </div>
+    </div>
+  </div>
+
+  <img id="lantern" src="tex/lantern_cursor.webp" alt="" aria-hidden="true" draggable="false" />
+
+  <div id="scroll" aria-hidden="true"></div>
+
+  <noscript><p class="noscript">Hollowmere requires JavaScript and WebGL. The spirits are disappointed.</p></noscript>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
